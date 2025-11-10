@@ -6,7 +6,10 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "generate:main": "prisma generate",
+    "generate:master": "prisma generate --schema=./prisma/master.prisma",
+    "postinstall": "npm run generate:main && npm run generate:master"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
