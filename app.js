@@ -27,5 +27,7 @@ app.use((error, req, res, next) => {
     res.status(statusCode).json({ errorMessage: errorMessage });
 });
 
-console.log("App online (ESM + Prisma)")
-app.listen(12537);
+const PORT = process.env.PORT || 40780;
+
+console.log(`App online (ESM + Prisma) na porta ${PORT}`);
+app.listen(PORT);
