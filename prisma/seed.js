@@ -10,13 +10,11 @@ const targets = [
   },
   {
     name: 'CLIENTE FARMACIA (DEV)',
-    // Substitua pelo IP correto se necessário: 145.223.27.100
     url: 'postgresql://postgres:Unico%40123@145.223.27.100:5432/cliente_farmacia_dev',
     records: 50,
   },
   {
     name: 'CLIENTE POSTO (DEV)',
-    // Substitua pelo IP correto se necessário: 145.223.27.100
     url: 'postgresql://postgres:Unico%40123@145.223.27.100:5432/cliente_posto_dev',
     records: 50,
   },
@@ -24,10 +22,7 @@ const targets = [
 
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const getRandomFloat = (min, max) => (Math.random() * (max - min) + min).toFixed(2);
-
-// --- NOVO GERADOR DE STATUS (LETRAS) ---
 const getRandomStatus = () => ['A', 'B', 'C', 'D'][getRandomInt(0, 3)];
-// ---------------------------------------
 
 async function seedDatabase(target) {
   console.log(`\n🌱 --- Iniciando Seed: ${target.name} ---`);
@@ -51,7 +46,7 @@ async function seedDatabase(target) {
     await prisma.embalagem.deleteMany({});
     await prisma.unidadeNegocio.deleteMany({});
 
-    const filial = await prisma.unidadeNegocio.create({ data: { codigo: 'MATRIZ-01' } });
+    const filial = await prisma.unidadeNegocio.create({ data: { codigo: '01' } });
     const embalagens = await Promise.all([
       prisma.embalagem.create({ data: { descricao: 'UNIDADE' } }),
       prisma.embalagem.create({ data: { descricao: 'CAIXA C/12' } }),
@@ -71,8 +66,9 @@ async function seedDatabase(target) {
       orcamentoPromises.push(
         prisma.orcamento.create({
           data: {
-            codigo: `ORC-${String(i).padStart(6, '0')}`,
-            status: getRandomStatus(), // Agora gera 'A', 'B', 'C' ou 'D'
+            // GERA "000001", "000002", etc. (String numérica)
+            codigo: String(i).padStart(6, '0'), 
+            status: getRandomStatus(),
             unidadenegocioid: filial.id,
             itens: { create: itensData },
           },

@@ -1,0 +1,24 @@
+
+generator master_client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/master-client"
+}
+
+// Mude de 'db' para 'master_db'
+datasource master_db {
+  provider = "postgresql"
+  url      = env("MASTER_DATABASE_URL")
+}
+
+model Client {
+  id          Int    @id @default(autoincrement())
+  apiKey      String @unique @map("api_key")
+  clientName  String @map("client_name")
+  dbHost      String @map("db_host")
+  dbPort      Int    @default(5432) @map("db_port")
+  dbUser      String @map("db_user")
+  dbPass      String @map("db_pass")
+  dbName      String @map("db_name")
+
+  @@map("clients")
+}

@@ -2,7 +2,8 @@
 import 'dotenv/config';
 import express from "express";
 import bodyParser from "body-parser";
-import bdRoutes from "./routes/bd_routes.js"; // <-- Precisa do .js
+import bdRoutes from "./routes/bd_routes.js";
+import adminRoutes from "./routes/admin_routes.js";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/bd', bdRoutes);
+app.use('/admin', adminRoutes);
 
 app.use((error, req, res, next) => {
     console.log(error.statusCode + '-' + error.message);
