@@ -41,7 +41,7 @@ const getOrcamento = async (req, res, next) => {
     const orcamento = await prisma.orcamento.findFirst({
       where: {
         status: statusLetra, // 'A', 'B', 'C'
-        codigo: Number(orcamentoId), // int
+        codigo: String(orcamentoId), // int
         unidadeNegocio: {
           codigo: String(filial),
         },
