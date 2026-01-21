@@ -25,7 +25,7 @@ const buildDatabaseUrl = (clientData) => {
   // Garante que db_port tenha um valor padrão se vier nulo do banco
   const port = db_port || 5432;
 
-  return `postgresql://${db_user}:${safePassword}@${db_host}:${port}/${db_name}`;
+  return `postgresql://${db_user}:${safePassword}@${db_host}:${port}/${db_name}?connection_limit=1`;
 };
 // ------------------------------------------
 

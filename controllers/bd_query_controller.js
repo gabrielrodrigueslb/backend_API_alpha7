@@ -5,17 +5,14 @@ import { Decimal } from '@prisma/client/runtime/library.js';
 
 const prismaClients = new Map();
 
-const getClientPrisma = (clientId, databaseUrl) => {
-  if (prismaClients.has(clientId)) {
-    return prismaClients.get(clientId);
-  }
-  // console.log(`✨ Criando novo PrismaClient para: ${clientId}`);
-  const newClient = new PrismaClient({
-    datasources: { db: { url: databaseUrl } },
+const getClientPrisma = (databaseUrl) => {
+  return new PrismaClient({
+    datasources: {
+      db: { url: databaseUrl },
+    },
   });
-  prismaClients.set(clientId, newClient);
-  return newClient;
 };
+
 
 const getOrcamento = async (req, res, next) => {
   const errors = validationResult(req);
@@ -103,6 +100,10 @@ const getOrcamento = async (req, res, next) => {
       err.statusCode = 500;
     }
     next(err);
+  } finally{
+    if(prisma){
+      await prisma.$disconnect()
+    }
   }
 };
 
