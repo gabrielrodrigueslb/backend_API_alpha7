@@ -10,48 +10,47 @@ datasource db {
 }
 
 model Orcamento {
-  id                 Int               @id @default(autoincrement())
-  codigo             String?           @map("codigo")
-  status             String?           @map("status")
-  unidadenegocioid   Int               @map("unidadenegocioid")
-  
-  // Relações
-  unidadeNegocio     UnidadeNegocio    @relation(fields: [unidadenegocioid], references: [id])
-  itens              ItemOrcamento[]
+  id               BigInt   @id @default(autoincrement())
+  codigo           Int      @map("codigo")
+  status           String  @db.Char(1) @map("status")
+  unidadenegocioid BigInt  @map("unidadenegocioid")
 
-  @@map("orcamento") // Mapeia este modelo para a tabela 'orcamento'
+  unidadeNegocio   UnidadeNegocio @relation(fields: [unidadenegocioid], references: [id])
+  itens            ItemOrcamento[]
+
+  @@map("orcamento")
 }
 
-model ItemOrcamento {
-  id                 Int               @id @default(autoincrement())
-  orcamentoid        Int               @map("orcamentoid")
-  embalagemid        Int               @map("embalagemid")
-  quantidade         Decimal           @map("quantidade") // Use Decimal para valores/quantidades
-  valortotal         Decimal           @map("valortotal")
 
-  // Relações
-  orcamento          Orcamento         @relation(fields: [orcamentoid], references: [id])
-  embalagem          Embalagem         @relation(fields: [embalagemid], references: [id])
+model ItemOrcamento {
+  id           BigInt   @id @default(autoincrement())
+  orcamentoid  BigInt   @map("orcamentoid")
+  embalagemid  BigInt   @map("embalagemid")
+  quantidade   Decimal  @map("quantidade")
+  valortotal   Decimal  @map("valortotal")
+
+  orcamento Orcamento @relation(fields: [orcamentoid], references: [id])
+  embalagem Embalagem @relation(fields: [embalagemid], references: [id])
 
   @@map("itemorcamento")
 }
 
+
 model UnidadeNegocio {
-  id                 Int               @id @default(autoincrement())
-  codigo             String?           @map("codigo") // Onde você filtra a 'filial'
-  
-  // Relação
-  orcamentos         Orcamento[]
+  id        BigInt   @id @default(autoincrement())
+  codigo    String?  @map("codigo")
+
+  orcamentos Orcamento[]
 
   @@map("unidadenegocio")
 }
 
-model Embalagem {
-  id                 Int               @id @default(autoincrement())
-  descricao          String?           @map("descricao")
 
-  // Relação
-  itensOrcamento     ItemOrcamento[]
+model Embalagem {
+  id        BigInt   @id @default(autoincrement())
+  descricao String?  @map("descricao")
+
+  itensOrcamento ItemOrcamento[]
 
   @@map("embalagem")
 }

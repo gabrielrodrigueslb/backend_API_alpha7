@@ -40,10 +40,10 @@ const getOrcamento = async (req, res, next) => {
 
     const orcamento = await prisma.orcamento.findFirst({
       where: {
-        status: statusLetra,
-        codigo: orcamentoId,
+        status: statusLetra, // 'A', 'B', 'C'
+        codigo: Number(orcamentoId), // int
         unidadeNegocio: {
-          codigo: filial,
+          codigo: String(filial),
         },
       },
       include: {
@@ -61,7 +61,7 @@ const getOrcamento = async (req, res, next) => {
 
     const valorTotal = orcamento.itens.reduce(
       (soma, item) => new Decimal(soma).plus(item.valortotal),
-      new Decimal(0)
+      new Decimal(0),
     );
 
     res.status(200).json({
