@@ -1,18 +1,6 @@
-// controllers/bd_query_controller.js
 import { validationResult } from 'express-validator';
-import { PrismaClient } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library.js';
-
-const prismaClients = new Map();
-
-const getClientPrisma = (databaseUrl) => {
-  return new PrismaClient({
-    datasources: {
-      db: { url: databaseUrl },
-    },
-  });
-};
-
+import { createTenantPrisma } from '../lib/prismaTenant.js';
 
 const getOrcamento = async (req, res, next) => {
   const errors = validationResult(req);
@@ -25,38 +13,34 @@ const getOrcamento = async (req, res, next) => {
 
   const { id: ref_id, status, orcamentoId, filial } = req.body;
 
-  // --- TRADUÇÃO DE STATUS (A Lógica Nova) ---
-  let statusLetra = status; // Valor padrão (caso já venha a letra)
+  let statusLetra = status;
   switch (status) {
     case 'Cotação/Aberto':
-    case 'ABERTO': // Adicionei para compatibilidade com nossos testes
+    case 'ABERTO':
       statusLetra = 'A';
       break;
     case 'Confirmado':
       statusLetra = 'B';
       break;
     case 'Finalizado':
-    case 'FECHADO': // Adicionei para compatibilidade
+    case 'FECHADO':
       statusLetra = 'C';
       break;
     case 'Cancelado':
-    case 'CANCELADO': // Adicionei para compatibilidade
+    case 'CANCELADO':
       statusLetra = 'D';
       break;
   }
-  // ----------------------------------------
 
   let prisma;
-  try {
-    prisma = getClientPrisma(req.clientId, req.databaseUrl);
-  } catch (err) {
-    return next(err);
-  }
 
   try {
+    // ✅ AQUI ESTÁ O PONTO CRÍTICO
+    prisma = createTenantPrisma(req.databaseUrl);
+
     const orcamento = await prisma.orcamento.findFirst({
       where: {
-        status: statusLetra, // <--- USA A LETRA TRADUZIDA AQUI
+        status: statusLetra,
         codigo: orcamentoId,
         unidadeNegocio: {
           codigo: filial,
@@ -75,19 +59,18 @@ const getOrcamento = async (req, res, next) => {
       });
     }
 
-    const valorTotal = orcamento.itens.reduce((soma, item) => {
-      return new Decimal(soma).plus(item.valortotal);
-    }, new Decimal(0));
+    const valorTotal = orcamento.itens.reduce(
+      (soma, item) => new Decimal(soma).plus(item.valortotal),
+      new Decimal(0)
+    );
 
     res.status(200).json({
       message: 'Consulta realizada com sucesso!',
       id: ref_id,
-      // Você pode querer retornar o status original (por extenso) ou a letra.
-      // Vou retornar a letra que veio do banco para ser fiel aos dados.
       status: orcamento.status,
       filial: orcamento.unidadeNegocio.codigo,
       id: orcamento.codigo,
-      valorTotal: valorTotal,
+      valorTotal,
       itens: orcamento.itens.map((item) => ({
         descricao: item.embalagem.descricao,
         quantidade: item.quantidade,
@@ -95,14 +78,11 @@ const getOrcamento = async (req, res, next) => {
       })),
     });
   } catch (err) {
-    console.error(`❌ Erro no getOrcamento [${req.clientId}]:`, err.message);
-    if (!err.statusCode) {
-      err.statusCode = 500;
-    }
+    console.error(`❌ Erro no getOrcamento [${req.clientId}]:`, err);
     next(err);
-  } finally{
-    if(prisma){
-      await prisma.$disconnect()
+  } finally {
+    if (prisma) {
+      await prisma.$disconnect();
     }
   }
 };

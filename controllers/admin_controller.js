@@ -1,6 +1,5 @@
 // controllers/admin_controller.js
 import { validationResult } from 'express-validator';
-// ⚠️ IMPORTANTE: Importamos do local personalizado que definimos no master.prisma
 import { PrismaClient as MasterPrismaClient } from '@prisma/master-client';
 
 // Instancia o cliente dedicado ao Master
